@@ -52,8 +52,8 @@ sum(getMuls(test))
 # data
 user <- "polks" #sarahpolk for macbook air
 day <- "day03"
-data <- readLines(file.path("/Users", user, "Library", "Mobile Documents", 
-                           "com~apple~CloudDocs", "misc", "aoc2024", day, "data.txt"))
+data <- readLines(file.path("/Users", user, "Library", "Mobile Documents", "com~apple~CloudDocs",
+                            "misc", "aoc2024", day, "data.txt"))
 data <- paste(data, collapse = "")
 
 sum(getMuls(data)) 
