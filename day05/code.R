@@ -174,9 +174,7 @@ part1 <- function(data) {
 part1(test)
 
 # data
-file <- here("day05/data.txt")
-
-path.script <- rstudioapi::getActiveDocumentContext()$path
+path.script <- getActiveDocumentContext()$path
 setwd(str_remove(path.script, "/code.R"))
 data <- readLines("data.txt")
 
@@ -200,25 +198,18 @@ part1(data)
 # Find the updates which are not in the correct order. What do you get if you
 # add up the middle page numbers after correctly ordering just those updates?
 
-fixOrder <- function(x, rules) {
+fixOrder <- function(x, rules.df) {
   page <- as.numeric(x)
-  
-  checkRules <- lapply(rules, function(y) {
-    rule <- as.numeric(y)
-    i1 <- grep(rule[1], page)
-    i2 <- grep(rule[2], page)
-    
-    if (length(i1) > 0 & length(i2) > 0){
-      ifelse(i1 < i2, 1, 0)
-    }
-  })
-  
-  
-  if (sum(unlist(checkRules) == 0) == 0) {
-    return("this is fine (:")
-  } else {
-    return("fix me")
-  }
+  order <- c((rules.df %>% 
+                filter(V1 %in% page, V2 %in% page) %>% 
+                group_by(V1) %>% 
+                summarise(n = n()) %>% 
+                arrange(desc(n)))$V1,
+             (rules.df %>% 
+                filter(V1 %in% page, V2 %in% page) %>% 
+                filter(!V2 %in% V1) %>% 
+                distinct(V2))$V2)
+  return(order)
 }
 
 part2 <- function(data) {
@@ -226,14 +217,16 @@ part2 <- function(data) {
   rules <- rp[[1]]
   pages <- rp[[2]]
   
-  lapply(pages, fixOrder, rules = rules)
+  badPages <- which(unlist(lapply(pages, checkPages, rules = rules)) != 0)
   
-  badPages <- which(unlist() > 0)
-  # sum(as.numeric(unlist(lapply(pages[badPages], function(x) x[ceiling(length(x) / 2)]))))
+  rules.df <- as.data.frame(t(matrix(as.numeric(unlist(rules)), ncol = length(rules))))
+  fixedPages <- lapply(pages[badPages], fixOrder, rules.df = rules.df)
+  
+  sum(as.numeric(unlist(lapply(fixedPages, function(x) x[ceiling(length(x) / 2)]))))
 }
 
-
-
+part2(test)
+part2(data)
 
 
 
